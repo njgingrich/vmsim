@@ -9,6 +9,21 @@ memory addresses to standard output.
 When a page fault occurs, the program chooses the page to be replaced
 based on the replacement policy specified in the commandline arguments.
 
+Each memory reference will be in the format op:address. 'op' will be either
+'r' or 'w', for read/write.
+Each page table entry is 4 bytes, with the frame number in the 2 lower bytes.
+Not all 16 bits may be needed, but are reserved - little endian is used.
+PTE:
+    bits  0-15: frame number
+    bits 16-23: stores page reference history (most recent in bit 23)
+    bit     24: valid
+    bit     25: reference
+    bit     26: modified
+    bits 27-31: reserved
+
+Frames will be used in numerical order. Once a frame is allocated to a process,
+it is never deallocated.
+
 Arguments:
     --pagesize:  the size of pages/frames (in KB)
     --vasize:    size of a virtual address (in bits)
@@ -24,5 +39,14 @@ Optional Arguments:
                          Defaults to False.
 """
 
+def initialize_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("pagesize",  help="the size of pages & frames (in KB)")
+    parser.add_argument("vasize",    help="the size of a virtual address (in bits)")
+    parser.add_argument("pasize",    help="the size of a physical address (in bits)")
+    parser.add_argument("RAM",       help="the size of system memory (in MB)")
+    parser.add_argument("algorithm", help="the page replacement policy to use")
+
 def main():
-    print "arg parsing"
+    initialize_args()
+    print("arg parsing")
