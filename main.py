@@ -41,12 +41,29 @@ Optional Arguments:
 
 def initialize_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("pagesize",  help="the size of pages & frames (in KB)")
-    parser.add_argument("vasize",    help="the size of a virtual address (in bits)")
-    parser.add_argument("pasize",    help="the size of a physical address (in bits)")
-    parser.add_argument("RAM",       help="the size of system memory (in MB)")
-    parser.add_argument("algorithm", help="the page replacement policy to use")
+    parser.add_argument("--pagesize",  help="the size of pages & frames (in KB)",
+                        type=int, required=True)
+    parser.add_argument("--vasize",    help="the size of a virtual address (in bits)",
+                        type=int, required=True)
+    parser.add_argument("--pasize",    help="the size of a physical address (in bits)",
+                        type=int, required=True)
+    parser.add_argument("--RAM",       help="the size of system memory (in MB)",
+                        type=int, required=True)
+    parser.add_argument("--algorithm", help="the page replacement policy to use",
+                        choices=['clock', 'refhistory'], required=True)
+    parser.add_argument("--refhistory-update", help="the length of period between reference history updates",
+                        type=int, default=5)
+    parser.add_argument("--debug", help="add additional diagnostic information",
+                        action="store_true")
+    args = parser.parse_args()
+    print args
+    if (args.pasize < args.vasize):
+        parser.error("pasize must be at least as large as vasize.")
+    if (args.RAM % args.pasize != 0):
+        parser.error("RAM must be divisible by pasize.")
 
 def main():
-    initialize_args()
+    args = initialize_args()
     print("arg parsing")
+
+main()
