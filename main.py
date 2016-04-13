@@ -33,10 +33,11 @@ Arguments:
                  by pagesize, and cannot be too large for value of pasize.
     --algorithm: the page replacement policy to be used (clock or refhistory).
 Optional Arguments:
-    --refhistory-update: specifies length of period between updates of each page's
-                         reference history word (ex: 10 -> updates on 10th, 20th,
-                         memory reference). Defaults to 5.
-    --debug:             program will print out additional diagnostic information.
+    --refhistory-update: specifies length of period between updates of each
+                         page's reference history word (ex: 10 -> updates on
+                         10th, 20th, memory reference). Defaults to 5.
+    --debug:             program will print out additional diagnostic
+                         information.
                          Defaults to False.
 """
 
@@ -45,19 +46,32 @@ debug = False
 
 def initialize_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pagesize",  help="the size of pages & frames (in KB)",
-                        type=int, required=True)
-    parser.add_argument("--vasize",    help="the size of a virtual address (in bits)",
-                        type=int, required=True)
-    parser.add_argument("--pasize",    help="the size of a physical address (in bits)",
-                        type=int, required=True)
-    parser.add_argument("--RAM",       help="the size of system memory (in MB)",
-                        type=int, required=True)
-    parser.add_argument("--algorithm", help="the page replacement policy to use",
-                        choices=['clock', 'refhistory'], required=True)
-    parser.add_argument("--refhistory-update", help="the length of period between reference history updates",
-                        type=int, default=5)
-    parser.add_argument("--debug", help="add additional diagnostic information",
+    parser.add_argument("--pagesize",
+                        help="the size of pages & frames (in KB)",
+                        type=int,
+                        required=True)
+    parser.add_argument("--vasize",
+                        help="the size of a virtual address (in bits)",
+                        type=int,
+                        required=True)
+    parser.add_argument("--pasize",
+                        help="the size of a physical address (in bits)",
+                        type=int,
+                        required=True)
+    parser.add_argument("--RAM",
+                        help="the size of system memory (in MB)",
+                        type=int,
+                        required=True)
+    parser.add_argument("--algorithm",
+                        help="the page replacement policy to use",
+                        choices=['clock', 'refhistory'],
+                        required=True)
+    parser.add_argument("--refhistory-update",
+                        help="the time between reference history updates",
+                        type=int,
+                        default=5)
+    parser.add_argument("--debug",
+                        help="add additional diagnostic information",
                         action="store_true")
     args = parser.parse_args()
     if (args.pasize < args.vasize):
