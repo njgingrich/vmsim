@@ -1,4 +1,5 @@
 import argparse
+import math
 import sys
 
 """
@@ -80,6 +81,9 @@ def initialize_args():
                         help="add additional diagnostic information",
                         action="store_true")
     args = parser.parse_args()
+    # make sure vasize has enough bits to store offset for pagesize
+    if (math.log(args.pagesize*1024, 2) > args.vasize):
+        parser.error("vasize doesn't have enough bits to store page offset.")
     if (args.pasize < args.vasize):
         parser.error("pasize must be at least as large as vasize.")
     if (args.RAM % args.pasize != 0):
@@ -92,10 +96,20 @@ def get_frame_number(addr):
         print("addr:", addr, "- frame:", addr & 0xff)
     return addr & 0xff
 
+def create_page_table():
+    # get page #
+    # get valid bit
+    # if valid, get frame number
+        # 12 bits offset (?)
+        # offset relates to page size (ex 4kb pagesize = 2^12 so 12 bits offset)
+
+    pass
+
 def read_page(addr):
     offset = addr % ram
+    page = int(addr / pagesize)
     if debug:
-        print("Page: ", addr, ", offset ", offset, sep="")
+        print("Page: ", page, ", offset ", offset, sep="")
 
 def main():
     args = initialize_args()
@@ -103,8 +117,13 @@ def main():
         global debug
         debug = True
         print(args)
+    global ram
+    global pagesize
+    global pasize
+    global vasize
+    global ref_update
     ram = args.RAM
-    pagesize = args.pagesize
+    pagesize = args.pagesize * 1024
     pasize = args.pasize
     vasize = args.vasize
     ref_update = args.refhistory_update
