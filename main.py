@@ -60,20 +60,29 @@ def initialize_args():
     parser.add_argument("--debug", help="add additional diagnostic information",
                         action="store_true")
     args = parser.parse_args()
-    if args.debug: print args
     if (args.pasize < args.vasize):
         parser.error("pasize must be at least as large as vasize.")
     if (args.RAM % args.pasize != 0):
         parser.error("RAM must be divisible by pasize.")
+    return args
 
 def get_frame_number(addr):
     # frame number is bits 0-15 (rightmost 16 bits)
+    if debug:
+        print("addr:", addr, "- frame:", addr & 0xff)
     return addr & 0xff
 
 def main():
     args = initialize_args()
+    if args.debug:
+        global debug
+        debug = True
+        print(args)
+
     for line in sys.stdin:
-        print line.rstrip('\n')
+        print(line.rstrip('\n'))
+        split = line.split(':')
+        get_frame_number(int(split[1].rstrip('\n')))
     print("arg parsing")
 
 main()
