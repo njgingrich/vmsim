@@ -43,6 +43,12 @@ Optional Arguments:
 
 # Setup
 debug = False
+pagesize = 1024
+vasize = 0
+pasize = 0
+ram = 1024
+algorithm = None
+ref_update = 5
 
 def initialize_args():
     parser = argparse.ArgumentParser()
@@ -86,17 +92,26 @@ def get_frame_number(addr):
         print("addr:", addr, "- frame:", addr & 0xff)
     return addr & 0xff
 
+def read_page(addr):
+    offset = addr % ram
+    if debug:
+        print("Page: ", addr, ", offset ", offset, sep="")
+
 def main():
     args = initialize_args()
     if args.debug:
         global debug
         debug = True
         print(args)
+    ram = args.RAM
+    pagesize = args.pagesize
+    pasize = args.pasize
+    vasize = args.vasize
+    ref_update = args.refhistory_update
 
     for line in sys.stdin:
         print(line.rstrip('\n'))
         split = line.split(':')
-        get_frame_number(int(split[1].rstrip('\n')))
-    print("arg parsing")
+        read_page(int(split[1].rstrip('\n')))
 
 main()
