@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 """
 This project will simulate a virtual memory system.
@@ -39,6 +40,9 @@ Optional Arguments:
                          Defaults to False.
 """
 
+# Setup
+debug = False
+
 def initialize_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pagesize",  help="the size of pages & frames (in KB)",
@@ -56,14 +60,20 @@ def initialize_args():
     parser.add_argument("--debug", help="add additional diagnostic information",
                         action="store_true")
     args = parser.parse_args()
-    print args
+    if args.debug: print args
     if (args.pasize < args.vasize):
         parser.error("pasize must be at least as large as vasize.")
     if (args.RAM % args.pasize != 0):
         parser.error("RAM must be divisible by pasize.")
 
+def get_frame_number(addr):
+    # frame number is bits 0-15 (rightmost 16 bits)
+    return addr & 0xff
+
 def main():
     args = initialize_args()
+    for line in sys.stdin:
+        print line.rstrip('\n')
     print("arg parsing")
 
 main()
