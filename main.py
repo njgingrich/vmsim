@@ -97,12 +97,18 @@ def get_frame_number(addr):
     return addr & 0xff
 
 def create_page_table():
+    pass
+
+def insert_page(va):
     # get page #
+    offset_bits = int(math.log(pagesize, 2))
+    print(offset_bits)
+    page_num = va >> offset_bits
+    print("page num:", page_num)
     # get valid bit
     # if valid, get frame number
         # 12 bits offset (?)
         # offset relates to page size (ex 4kb pagesize = 2^12 so 12 bits offset)
-
     pass
 
 def read_page(addr):
@@ -131,6 +137,8 @@ def main():
     for line in sys.stdin:
         print(line.rstrip('\n'))
         split = line.split(':')
-        read_page(int(split[1].rstrip('\n')))
+        addr = int(split[1].rstrip('\n'))
+        read_page(addr)
+        insert_page(addr)
 
 main()

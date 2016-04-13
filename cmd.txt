@@ -1,0 +1,1 @@
+clear && python3 main.py --pagesize=4 --vasize=16 --pasize=16 --RAM=4096 --algorithm=refhistory --debug < ref.txt
