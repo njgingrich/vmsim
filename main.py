@@ -117,8 +117,7 @@ def read_page(addr):
     if debug:
         print("Page: ", page, ", offset ", offset, sep="")
 
-def main():
-    args = initialize_args()
+def set_args(args):
     if args.debug:
         global debug
         debug = True
@@ -133,6 +132,9 @@ def main():
     pasize = args.pasize
     vasize = args.vasize
     ref_update = args.refhistory_update
+
+def main():
+    set_args(initialize_args())
 
     for line in sys.stdin:
         print(line.rstrip('\n'))
