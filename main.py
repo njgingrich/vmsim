@@ -1,6 +1,7 @@
 import argparse
 import math
 import sys
+from PageTable import PageTable
 
 """
 This project will simulate a virtual memory system.
@@ -18,9 +19,9 @@ Not all 16 bits may be needed, but are reserved - little endian is used.
 PTE:
     bits  0-15: frame number
     bits 16-23: stores page reference history (most recent in bit 23)
-    bit     24: valid
-    bit     25: reference
-    bit     26: modified
+    bit     24: valid (page table entry holds valid data)
+    bit     25: reference (pte has been accessed)
+    bit     26: modified (pte has been modified)
     bits 27-31: reserved
 
 Frames will be used in numerical order. Once a frame is allocated to a process,
@@ -48,7 +49,7 @@ pagesize = 1024
 vasize = 0
 pasize = 0
 ram = 1024
-num_frames = ram/pagesize;
+num_frames = int(ram/pagesize)
 algorithm = None
 ref_update = 5
 
@@ -131,19 +132,22 @@ def set_args(args):
     global num_pages
     ram = args.RAM
     pagesize = args.pagesize * 1024
-    num_pages = ram/pagesize
+    num_pages = int(ram/pagesize)
     pasize = args.pasize
     vasize = args.vasize
     ref_update = args.refhistory_update
 
 def main():
     set_args(initialize_args())
+    table = PageTable()
 
     for line in sys.stdin:
         print(line.rstrip('\n'))
         split = line.split(':')
         addr = int(split[1].rstrip('\n'))
-        read_page(addr)
-        insert_page(addr)
+        #read_page(addr)
+        #insert_page(addr)
+        table.add_page(0, addr)
+        table.dump()
 
 main()
