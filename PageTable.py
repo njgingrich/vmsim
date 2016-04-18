@@ -15,9 +15,9 @@ ________ ________ ________ ________
 
 class PageTable:
     def __init__(self):
-        # The page table is an array with a 32-bit value in each index
-        # The index of the array is the page number.
-        self.table = []
+        # The page table is an dict with a 32-bit value in each index
+        # The key of the dict is the page number.
+        self.table = {}
         self.cur_frame = 0
         pass
 
@@ -34,24 +34,44 @@ class PageTable:
         # ref bit will be initially set to 1
 
         pte = 0x00000000
-        self.table.insert(page_num, 0x00000000)
+        self.table[page_num] = va
         # init refhistory to 1000000, valid bit to 1,
         # ref bit to 1, modified bit to 0
         # 0xfbf80ffff = 11111011 10000000 11111111 11111111
-        pte = pte & 0xfbf80ffff
+        #pte = pte & 0xfbf80ffff
 
-        # init frame number
-        frame = self.find_open_frame()
         # mask with 11111111 11111111 00000000 00000000
-        pte = (pte & 0xffff0000) + frame
+        #pte = (pte & 0xffff0000) + frame
+
+    def get_page(self, page_num, va):
+        try:
+            page = self.table[page_num]
+            return page
+
+        except KeyError:
+            print("Page fault for page", page_num)
+            frame = self.find_open_frame()
+            print("Frame", frame, "available, allocated to page", page_num)
+            va += frame
+            self.add_page(page_num, va)
 
     def replace_page(self, page_num):
         pass
 
     def dump(self):
+        valid_mask   = 0b00000001000000000000000000000000
+        ref_mask     = 0b00000010000000000000000000000000
+        dirty_mask   = 0b00000100000000000000000000000000
+        history_mask = 0b00000000111111110000000000000000
+        frame_mask   = 0b00000000000000001111111111111111
         print("Page #", "Valid", "Ref", "Dirty", "History", "Frame", sep="\t")
-        for (ix, entry) in enumerate(self.table):
-            print(ix, ix&0x1000000, ix&0x2000000, ix&0x4000000, ix&0xff0000, ix&0xffff, sep="\t")
+        for page in self.table:
+            print("page in binary:", bin(self.table[page]))
+            print("bit lengtH:", self.table[page].bit_length())
+
+            print(page, self.table[page]&valid_mask, self.table[page]&ref_mask,
+                        self.table[page]&dirty_mask, bin(self.table[page]&history_mask),
+                        bin(self.table[page]&frame_mask), sep="\t")
         pass
 
 

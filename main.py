@@ -105,6 +105,11 @@ def insert_entry(va, table):
     # get page num
     offset_bits = int(math.log(pagesize, 2))
     page_num = va >> offset_bits
+    offset = int(va % ram)
+    if debug:
+        print("Page:", page_num, ",", "offset", offset)
+    page = table.get_page(page_num, va)
+
     print("Virtual address:", va, "Physical address:", va)
     # get the page from the page table (throw a page fault if its not in table)
     # if in table:
@@ -119,12 +124,6 @@ def insert_entry(va, table):
         # 12 bits offset (?)
         # offset relates to page size (4kb pagesize = 2^12 so 12 bits offset)
     pass
-
-def read_page(addr):
-    offset = addr % ram
-    page = int(addr / pagesize)
-    if debug:
-        print("Page: ", page, ", offset ", offset, sep="")
 
 def set_args(args):
     if args.debug:
@@ -149,12 +148,13 @@ def main():
     table = PageTable()
 
     for line in sys.stdin:
-        print(line.rstrip('\n'))
+        line = line.rstrip('\n')
+        print("line:", line)
+        if line == "dump":
+            table.dump()
+            continue
         split = line.split(':')
         addr = int(split[1].rstrip('\n'))
-        #read_page(addr)
         insert_entry(addr, table)
-        table.add_page(0, addr)
-        table.dump()
 
 main()
