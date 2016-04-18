@@ -48,6 +48,7 @@ pagesize = 1024
 vasize = 0
 pasize = 0
 ram = 1024
+num_frames = ram/pagesize;
 algorithm = None
 ref_update = 5
 
@@ -108,7 +109,7 @@ def insert_page(va):
     # get valid bit
     # if valid, get frame number
         # 12 bits offset (?)
-        # offset relates to page size (ex 4kb pagesize = 2^12 so 12 bits offset)
+        # offset relates to page size (4kb pagesize = 2^12 so 12 bits offset)
     pass
 
 def read_page(addr):
@@ -127,8 +128,10 @@ def set_args(args):
     global pasize
     global vasize
     global ref_update
+    global num_pages
     ram = args.RAM
     pagesize = args.pagesize * 1024
+    num_pages = ram/pagesize
     pasize = args.pasize
     vasize = args.vasize
     ref_update = args.refhistory_update
