@@ -101,12 +101,19 @@ def get_frame_number(addr):
 def create_page_table():
     pass
 
-def insert_page(va):
-    # get page #
+def insert_entry(va, table):
+    # get page num
     offset_bits = int(math.log(pagesize, 2))
-    print(offset_bits)
     page_num = va >> offset_bits
-    print("page num:", page_num)
+    print("Virtual address:", va, "Physical address:", va)
+    # get the page from the page table (throw a page fault if its not in table)
+    # if in table:
+        # valid entry, stored in frame #
+    # if not in table:
+        # insert page at page_num
+
+
+
     # get valid bit
     # if valid, get frame number
         # 12 bits offset (?)
@@ -146,7 +153,7 @@ def main():
         split = line.split(':')
         addr = int(split[1].rstrip('\n'))
         #read_page(addr)
-        #insert_page(addr)
+        insert_entry(addr, table)
         table.add_page(0, addr)
         table.dump()
 

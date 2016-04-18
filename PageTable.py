@@ -26,6 +26,9 @@ class PageTable:
         self.cur_frame += 1
         return ret
 
+    def add_entry(addr):
+        page_num = int(pagesize/addr)
+
     def add_page(self, page_num, va):
         # an entry won't be added to page table until it's valid, so
         # ref bit will be initially set to 1
