@@ -134,6 +134,7 @@ def set_args(args):
     global pagesize
     global pasize
     global vasize
+    global algorithm
     global ref_update
     global num_pages
     ram = args.RAM
@@ -141,11 +142,12 @@ def set_args(args):
     num_pages = int(ram/pagesize)
     pasize = args.pasize
     vasize = args.vasize
+    algorithm = args.algorithm
     ref_update = args.refhistory_update
 
 def main():
     set_args(initialize_args())
-    table = PageTable()
+    table = PageTable(pagesize, vasize, ram, algorithm)
 
     for line in sys.stdin:
         line = line.rstrip('\n')
@@ -155,6 +157,5 @@ def main():
             continue
         split = line.split(':')
         addr = int(split[1].rstrip('\n'))
-        insert_entry(addr, table)
 
 main()

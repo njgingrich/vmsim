@@ -1,3 +1,6 @@
+import math
+from PageTableEntry import PageTableEntry as Entry
+
 """
 Page Table Entry Diagram
 10987654 32109876 54321098 76543210
@@ -14,74 +17,62 @@ ________ ________ ________ ________
 """
 
 class PageTable:
-    def __init__(self):
-        # The page table is an dict with a 32-bit value in each index
-        # The key of the dict is the page number.
+    def __init__(self, pagesize, vasize, ram, algorithm):
+        """
+        Each entry in the table is a PageTableEntry.
+        """
         self.table = {}
         self.cur_frame = 0
-        pass
+        self.pagesize = pagesize
+        self.vasize = vasize
+        self.ram = ram
+        self.algorithm = algorithm
+        self.offset_bits = int(math.log(pagesize, 2))
 
-    def find_open_frame(self):
-        ret = self.cur_frame
+    def create_page(self, page_num, dirty, frame_num):
+        self.table[page_num] = Entry(True, False, dirty, 0b10000000, frame_num)
+        return self.table[page_num]
+
+    def find_frame(self):
         self.cur_frame += 1
-        return ret
+        return (self.cur_frame - 1)
 
-    def add_entry(addr):
-        page_num = int(pagesize/addr)
+    def get_page_number(self, va):
+        return va >> self.offset_bits
 
-    def add_page(self, page_num, va):
-        # an entry won't be added to page table until it's valid, so
-        # ref bit will be initially set to 1
+    def get_offset(self, va):
+        return int(va % self.ram)
 
-        pte = 0x00000000
-        self.table[page_num] = va
-        # init refhistory to 1000000, valid bit to 1,
-        # ref bit to 1, modified bit to 0
-        # 0xfbf80ffff = 11111011 10000000 11111111 11111111
-        #pte = pte & 0xfbf80ffff
-
-        # mask with 11111111 11111111 00000000 00000000
-        #pte = (pte & 0xffff0000) + frame
-
-    def get_page(self, page_num, va):
+    def get_entry(self, va):
+        page_num = self.get_page_number(va)
         try:
-            page = self.table[page_num]
-            return page
-
+            entry = self.table[page_num]
+            return entry
         except KeyError:
             print("Page fault for page", page_num)
-            frame = self.find_open_frame()
-            print("Frame", frame, "available, allocated to page", page_num)
-            va += frame
-            self.add_page(page_num, va)
-
-    def replace_page(self, page_num):
-        pass
+            frame_num = self.find_frame()
+            print("Frame", frame_num, "available, allocated to page", page_num)
+            return create_page(page_num, False, frame_num)
 
     def dump(self):
-        valid_mask   = 0b00000001000000000000000000000000
-        ref_mask     = 0b00000010000000000000000000000000
-        dirty_mask   = 0b00000100000000000000000000000000
-        history_mask = 0b00000000111111110000000000000000
-        frame_mask   = 0b00000000000000001111111111111111
         print("Page #", "Valid", "Ref", "Dirty", "History", "Frame", sep="\t")
         for page in self.table:
             print("page in binary:", bin(self.table[page]))
             print("bit lengtH:", self.table[page].bit_length())
 
-            print(page, self.table[page]&valid_mask, self.table[page]&ref_mask,
-                        self.table[page]&dirty_mask, bin(self.table[page]&history_mask),
-                        bin(self.table[page]&frame_mask), sep="\t")
-        pass
+            print(page, self.table[page].valid, self.table[page].ref,
+                        self.table[page].dirty, bin(self.table[page].history),
+                        bin(self.table[page].frame), sep="\t")
 
 
-
-
-
-
-
-
-
-
-
-
+"""
+Determine the physical address from a virtual address:
+    1) get the number of bits required for the offset -> offset_bits = log(2, pagesize)
+    2) get the page number                            -> v_addr >> offset_bits
+    3) get the offset                                 -> v_addr % ram
+    4) see if page is in table
+    4.1) if yes, return physical address
+    4.2) if no, find an open frame and allocate it to that page
+    4.2.1) if no frames available, evict as necessary ***
+    4.3) the physical address will be                 -> frame_num * pagesize + offset
+"""

@@ -1,0 +1,88 @@
+"""
+Page Table Entry Diagram
+10987654 32109876 54321098 76543210
+33222222 22222111 11111110 00000000
+________ ________ ________ ________
+|   |||| |      | |               |
+|   |||| |      | +---------------+-- frame number
+|   |||| +------+-- reference history
+|   |||+-- valid bit
+|   ||+-- reference bit
+|   |+-- modified bit
++---+-- reserved
+
+"""
+
+class PageTable:
+    def __init__(self):
+        # The page table is an dict. The key of the dict is the page number,
+        # each value is a dict with the keys 'valid', 'ref', 'dirty', 'history', 'frame'.
+        self.table = {}
+        self.cur_frame = 0
+        pass
+
+    def find_open_frame(self):
+        ret = self.cur_frame
+        self.cur_frame += 1
+        return ret
+
+    def add_entry(addr):
+        page_num = int(pagesize/addr)
+
+    def add_page(self, page_num, va):
+        # an entry won't be added to page table until it's valid, so
+        # ref bit will be initially set to 1
+
+        pte = 0x00000000
+        self.table[page_num] = va
+        # init refhistory to 1000000, valid bit to 1,
+        # ref bit to 1, modified bit to 0
+        # 0xfbf80ffff = 11111011 10000000 11111111 11111111
+        #pte = pte & 0xfbf80ffff
+
+        # mask with 11111111 11111111 00000000 00000000
+        #pte = (pte & 0xffff0000) + frame
+
+    def get_page(self, page_num, va):
+        """ get the page if possible, otherwise create and return the new va """
+        try:
+            page = self.table[page_num]
+            return page
+
+        except KeyError:
+            print("Page fault for page", page_num)
+            frame = self.find_open_frame()
+            print("Frame", frame, "available, allocated to page", page_num)
+            va += frame
+            self.add_page(page_num, va)
+
+    def replace_page(self, page_num):
+        pass
+
+    def dump(self):
+        valid_mask   = 0b00000001000000000000000000000000
+        ref_mask     = 0b00000010000000000000000000000000
+        dirty_mask   = 0b00000100000000000000000000000000
+        history_mask = 0b00000000111111110000000000000000
+        frame_mask   = 0b00000000000000001111111111111111
+        print("Page #", "Valid", "Ref", "Dirty", "History", "Frame", sep="\t")
+        for page in self.table:
+            print("page in binary:", bin(self.table[page]))
+            print("bit lengtH:", self.table[page].bit_length())
+
+            print(page, self.table[page]&valid_mask, self.table[page]&ref_mask,
+                        self.table[page]&dirty_mask, bin(self.table[page]&history_mask),
+                        bin(self.table[page]&frame_mask), sep="\t")
+        pass
+
+
+
+
+
+
+
+
+
+
+
+
