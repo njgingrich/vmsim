@@ -13,13 +13,13 @@ ________ ________ ________ ________
 |   ||+-- reference bit
 |   |+-- modified bit
 +---+-- reserved
-
 """
 
 class PageTable:
     def __init__(self, pagesize, vasize, ram, algorithm):
         """
         Each entry in the table is a PageTableEntry.
+        The page table also needs to store most of the parameter values.
         """
         self.table = {}
         self.cur_frame = 0
@@ -30,10 +30,17 @@ class PageTable:
         self.offset_bits = int(math.log(pagesize, 2))
 
     def create_page(self, page_num, dirty, frame_num):
+        """ Put a new page into the page table with the given values. """
         self.table[page_num] = Entry(True, True, dirty, 0b10000000, frame_num)
         return (self.table[page_num], page_num)
 
     def evict_page(self):
+        """
+        Remove a page from the table and replace it with a new page.
+        For the refhistory algorithm, find the pages with the lowest history.
+        Then select the lowest-numbered page from that list of pages.
+        The entire list will be replaced if a page with a lower history is found.
+        """
         least_history = 0b11111111
         history_list = []
         for key in sorted(self.table):
@@ -46,6 +53,12 @@ class PageTable:
         return history_list[0]
 
     def find_frame(self, page_num):
+        """
+        Find a frame for the given page. If there is an available frame, increment
+        the current frame and return the frame number.
+        If there are no frames, evict a page from the frame selected by the eviction
+        policy (refhistory) and return the frame number.
+        """
         #max_frames = self.ram/self.pagesize
         max_frames = 4
 
@@ -63,12 +76,18 @@ class PageTable:
             return (self.cur_frame - 1)
 
     def get_page_number(self, va):
+        """ Get the page number from a virtual address. """
         return va >> self.offset_bits
 
     def get_offset(self, va):
+        """ Get the offset from a virtual address. """
         return int(va % self.ram)
 
     def get_entry(self, va):
+        """
+        Get the page table entry for a virtual address.
+        Returns a tuple of (entry, page_number)
+        """
         page_num = self.get_page_number(va)
         print("Page: ", page_num, ",", " offset ", self.get_offset(va), sep="")
         try:
@@ -83,9 +102,11 @@ class PageTable:
             return self.create_page(page_num, False, frame_num)
 
     def write_page(self, page_num):
+        """ Mark the given page as dirty. """
         self.table[page_num].dirty = True
 
     def dump(self):
+        """ Print out the valid page table entries, and their information. """
         print("Page #", "Valid", "Ref.", "Dirty", "History\t", "Frame", sep="\t")
         for page in sorted(self.table):
             print(page,
@@ -97,18 +118,8 @@ class PageTable:
                   sep="\t")
 
     def update_refhistory(self):
+        """ Update the history bits for each page table entry. """
         for key in self.table:
             self.table[key].ref = False
             self.table[key].history = (self.table[key].history >> 1) | 0b10000000
 
-"""
-Determine the physical address from a virtual address:
-    1) get the number of bits required for the offset -> offset_bits = log(2, pagesize)
-    2) get the page number                            -> v_addr >> offset_bits
-    3) get the offset                                 -> v_addr % ram
-    4) see if page is in table
-    4.1) if yes, return physical address
-    4.2) if no, find an open frame and allocate it to that page
-    4.2.1) if no frames available, evict as necessary ***
-    4.3) the physical address will be                 -> frame_num * pagesize + offset
-"""

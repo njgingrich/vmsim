@@ -139,6 +139,7 @@ def get_physical_address(va, table, op, access_num):
 
 def main():
     set_args(initialize_args())
+    # initialize the page table
     table = PageTable(pagesize, vasize, ram, algorithm)
 
     ix = 1
