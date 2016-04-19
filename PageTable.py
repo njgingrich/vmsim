@@ -31,7 +31,7 @@ class PageTable:
 
     def create_page(self, page_num, dirty, frame_num):
         self.table[page_num] = Entry(True, True, dirty, 0b10000000, frame_num)
-        return self.table[page_num]
+        return (self.table[page_num], page_num)
 
     def evict_page(self):
         least_history = 0b11111111
@@ -70,18 +70,23 @@ class PageTable:
 
     def get_entry(self, va):
         page_num = self.get_page_number(va)
-        print("Page:", page_num, ",", "offset", self.get_offset(va))
+        print("Page: ", page_num, ",", " offset ", self.get_offset(va), sep="")
         try:
             entry = self.table[page_num]
             print("Valid entry, stored in frame", entry.frame)
-            return entry
+            # set ref bit to true
+            self.table[page_num].ref = True
+            return (entry, page_num)
         except KeyError:
             print("Page fault for page", page_num)
             frame_num = self.find_frame(page_num)
             return self.create_page(page_num, False, frame_num)
 
+    def write_page(self, page_num):
+        self.table[page_num].dirty = True
+
     def dump(self):
-        print("Page #", "Valid", "Ref", "Dirty", "History\t", "Frame", sep="\t")
+        print("Page #", "Valid", "Ref.", "Dirty", "History\t", "Frame", sep="\t")
         for page in sorted(self.table):
             print(page,
                   ("Yes" if self.table[page].valid else "No"),
