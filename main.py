@@ -125,6 +125,9 @@ def get_physical_address(va, table):
         4.3) the physical address will be                 -> frame_num * pagesize + offset
     """
     entry = table.get_entry(va)
+    offset = va % ram
+    pa = entry.frame * pagesize + offset
+    print("Virtual address:", va, "Physical address:", pa)
     ##### you left off here, bro, on stage 4 #####
 
 def main():
@@ -133,7 +136,6 @@ def main():
 
     for line in sys.stdin:
         line = line.rstrip('\n')
-        print("line:", line)
         if line == "dump":
             table.dump()
             continue

@@ -52,17 +52,14 @@ class PageTable:
             print("Page fault for page", page_num)
             frame_num = self.find_frame()
             print("Frame", frame_num, "available, allocated to page", page_num)
-            return create_page(page_num, False, frame_num)
+            return self.create_page(page_num, False, frame_num)
 
     def dump(self):
         print("Page #", "Valid", "Ref", "Dirty", "History", "Frame", sep="\t")
         for page in self.table:
-            print("page in binary:", bin(self.table[page]))
-            print("bit lengtH:", self.table[page].bit_length())
-
             print(page, self.table[page].valid, self.table[page].ref,
-                        self.table[page].dirty, bin(self.table[page].history),
-                        bin(self.table[page].frame), sep="\t")
+                    self.table[page].dirty, str(bin(self.table[page].history))[2:],
+                        self.table[page].frame, sep="\t")
 
 
 """
