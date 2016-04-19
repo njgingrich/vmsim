@@ -124,8 +124,8 @@ def get_physical_address(va, table):
         4.2.1) if no frames available, evict as necessary ***
         4.3) the physical address will be                 -> frame_num * pagesize + offset
     """
-    entry = table.get_entry(va)
     offset = va % ram
+    entry = table.get_entry(va)
     pa = entry.frame * pagesize + offset
     print("Virtual address:", va, "Physical address:", pa)
     ##### you left off here, bro, on stage 4 #####
@@ -134,6 +134,7 @@ def main():
     set_args(initialize_args())
     table = PageTable(pagesize, vasize, ram, algorithm)
 
+    ix = 0
     for line in sys.stdin:
         line = line.rstrip('\n')
         if line == "dump":
@@ -141,6 +142,11 @@ def main():
             continue
         split = line.split(':')
         va = int(split[1].rstrip('\n'))
+        if ix % ref_update == 0 and ix != 0:
+            if debug:
+                print("Updating refhistory")
+            table.update_refhistory()
         get_physical_address(va, table)
+        ix += 1
 
 main()
