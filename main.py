@@ -92,39 +92,6 @@ def initialize_args():
         parser.error("RAM must be divisible by pasize.")
     return args
 
-def get_frame_number(addr):
-    # frame number is bits 0-15 (rightmost 16 bits)
-    if debug:
-        print("addr:", addr, "- frame:", addr & 0xff)
-    return addr & 0xff
-
-def create_page_table():
-    pass
-
-def insert_entry(va, table):
-    # get page num
-    offset_bits = int(math.log(pagesize, 2))
-    page_num = va >> offset_bits
-    offset = int(va % ram)
-    if debug:
-        print("Page:", page_num, ",", "offset", offset)
-    page = table.get_page(page_num, va)
-
-    print("Virtual address:", va, "Physical address:", va)
-    # get the page from the page table (throw a page fault if its not in table)
-    # if in table:
-        # valid entry, stored in frame #
-    # if not in table:
-        # insert page at page_num
-
-
-
-    # get valid bit
-    # if valid, get frame number
-        # 12 bits offset (?)
-        # offset relates to page size (4kb pagesize = 2^12 so 12 bits offset)
-    pass
-
 def set_args(args):
     if args.debug:
         global debug
@@ -145,6 +112,21 @@ def set_args(args):
     algorithm = args.algorithm
     ref_update = args.refhistory_update
 
+def get_physical_address(va, table):
+    """
+    Determine the physical address from a virtual address:
+        1) get the number of bits required for the offset -> offset_bits = log(2, pagesize)
+        2) get the page number                            -> v_addr >> offset_bits
+        3) get the offset                                 -> v_addr % ram
+        4) see if page is in table
+        4.1) if yes, return physical address
+        4.2) if no, find an open frame and allocate it to that page
+        4.2.1) if no frames available, evict as necessary ***
+        4.3) the physical address will be                 -> frame_num * pagesize + offset
+    """
+    entry = table.get_entry(va)
+    ##### you left off here, bro, on stage 4 #####
+
 def main():
     set_args(initialize_args())
     table = PageTable(pagesize, vasize, ram, algorithm)
@@ -156,6 +138,7 @@ def main():
             table.dump()
             continue
         split = line.split(':')
-        addr = int(split[1].rstrip('\n'))
+        va = int(split[1].rstrip('\n'))
+        get_physical_address(va, table)
 
 main()
